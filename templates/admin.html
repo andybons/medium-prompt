@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font: 62.5% -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  form {
+    font-size: 1.6em;
+    display: block;
+    margin: 1em auto;
+    width: 40em;
+  }
+  section {
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    margin: .25em 0;
+  }
+  section:last-of-type {
+    -webkit-justify-content: flex-end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+  }
+  label {
+    margin-right: .5em;
+    text-align: right;
+    width: 7em;
+  }
+  input {
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    font: inherit;
+  }
+</style>
+<form method="POST">
+  <section>
+    <label for="clientID">Client ID:</label>
+    <input id="clientID" name="clientID" value="{{.ClientID}}">
+  </section>
+  <section>
+    <label for="clientSecret">Client Secret:</label></label>
+    <input id="clientSecret" name="clientSecret" value="{{.ClientSecret}}"></section>
+  </section>
+  <section>
+    <label for="callbackURL">Callback URL:</label></label>
+    <input id="callbackURL" name="callbackURL" value="{{.CallbackURL}}"></section>
+  </section>
+  <section>
+    <label for="xsrfKey">XSRF Key:</label></label>
+    <input id="xsrfKey" name="xsrfKey" value="{{.XSRFKey}}"></section>
+  </section>
+  <section>
+    <button type="submit">Save</button>
+  </section>
+</form>

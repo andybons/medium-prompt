@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medium Writing Prompt</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font: 62.5% -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;
+  background-color: #fafafa;
+  -webkit-font-smoothing: antialiased;
+}
+a:link,
+a:visited {
+  color: inherit;
+}
+a:hover {
+  color: #000;
+}
+.container {
+  background-color: #fff;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  margin: 3em 3em 0;
+  min-height: calc(100vh - 3em);
+}
+.prompt,
+.textareaContainer {
+  font-family: Georgia, serif;
+}
+.prompt {
+  display: block;
+  font-size: 2.4em;
+  margin-top: 1em;
+}
+.userAvatar {
+  background-size: cover;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: .5em;
+  width: 1.75em;
+  height: 1.75em;
+}
+main {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  margin: 0 auto;
+  width: 65em;
+}
+.textareaContainer {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  font-size: 1.8em;
+  margin-top: .5em;
+  position: relative;
+}
+.mirror,
+textarea {
+  border: none;
+  font: inherit;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.mirror {
+  visibility: hidden;
+}
+textarea {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  outline: none;
+  resize: none;
+}
+.bottomContainer {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 1em 0 1.5em;
+  text-align: right;
+}
+.writingAsContainer {
+  font-size: 1.6em;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+.writingAsContainer {
+  color: #666;
+}
+button {
+  color: #666;
+  font-family: inherit;
+  font-size: 1.6em;
+  padding: .5em 1em;
+  border-radius: 1.5em;
+  background-color: #fff;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  outline: none;
+}
+button:hover,
+button:active {
+  color: #000;
+}
+button:active {
+  border: 1px solid #e0e0e0;
+  box-shadow: none;
+}
+.creating {
+  box-shadow: none;
+  cursor: wait;
+}
+footer {
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  background-color: #fafafa;
+  color: #666;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  font-size: 1.4em;
+  padding: 1em 0;
+}
+footer span:first-of-type {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+</style>
+<div class="container">
+  <main>
+    <span class="prompt">{{.PromptText}}</span>
+    <div class="textareaContainer">
+      <div class="mirror"><span class="js-mirrorContent"></span><br></div>
+      <textarea placeholder="{{.PlaceholderText}}"></textarea>
+    </div>
+    <div class="bottomContainer">
+      <div class="writingAsContainer">
+        <span>
+          Writing in <a href="https://daringfireball.net/projects/markdown/">Markdown</a>
+          as <a target="_blank" class="js-userFullName"></a>
+        </span>
+        <i class="userAvatar js-userAvatar"></i>
+      </div>
+      <button class="submit">Create draft on Medium</button>
+    </div>
+  </main>
+  <footer>
+    <span>
+      This site is not affiliated with
+      <a target="_blank" href="https://medium.com">Medium</a>
+    </span>
+    <span>
+      Created with 💀 in NYC by
+      <a target="_blank" href="https://medium.com/@andybons">@andybons</a>
+    </span>
+  </footer>
+</div>
+<script>
+(function() {
+  'use strict';
+
+  var USER_INFO = {{.UserJSON}};
+  var XSRF_TOKEN = '{{.XSRFToken}}';
+
+  document.querySelector('.js-userAvatar').style.backgroundImage =
+      'url(' + USER_INFO.user.imageUrl + ')';
+  var fullName = document.querySelector('.js-userFullName');
+  fullName.href = 'https://medium.com/@' + USER_INFO.user.username;
+  fullName.textContent = USER_INFO.user.name;
+
+  var textarea = document.querySelector('textarea');
+  var mirror = document.querySelector('.js-mirrorContent');
+  textarea.addEventListener('input', function() {
+    mirror.textContent = textarea.value;
+  }, false);
+  mirror.textContent = textarea.value;
+  textarea.focus();
+
+  function onCreate(e) {
+    var xhr = e.target;
+    if (!xhr.response) {
+      alert('Crap... something went wrong: ' + xhr.statusText);
+      textarea.disabled = false;
+      button.classList.remove('creating');
+      button.textContent = 'Create draft on Medium';
+      return;
+    }
+
+    window.location.href = xhr.response.url;
+  }
+
+  var button = document.querySelector('button');
+  button.addEventListener('click', function(e) {
+    e.preventDefault();
+    textarea.disabled = true;
+    button.classList.add('creating');
+    button.textContent = 'Creating draft...';
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+    xhr.open('POST', '/_create');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-XSRF-Token', XSRF_TOKEN);
+    xhr.addEventListener('load', onCreate);
+    xhr.send(JSON.stringify({
+      title: document.querySelector('.prompt').textContent,
+      content: textarea.value,
+    }));
+  });
+})();
+</script>
